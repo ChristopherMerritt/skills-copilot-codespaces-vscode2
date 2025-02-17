@@ -1,27 +1,38 @@
-// create web app
-const express = require('express');
-const app = express();
-// create json parser
-const bodyParser = require('body-parser');
-const jsonParser = bodyParser.json();
-// create port
-const port = 3000;
-// create comments array
-const comments = [
-  { username: 'Todd', comment: 'This is a comment!' },
-  { username: 'Sue', comment: 'This is another comment!' }
-];
-// create get method
-app.get('/comments', (req, res) => {
-  res.json(comments);
-});
-// create post method
-app.post('/comments', jsonParser, (req, res) => {
-  const newComment = req.body;
-  comments.push(newComment);
-  res.json(newComment);
-});
-// listen to port
-app.listen(port, () => {
-  console.log(`Server started on port ${port}`);
-});
+// Create web server
+// 1. Load http module
+var http = require('http');
+var fs = require('fs');
+var qs = require('querystring');
+var url = require('url');
+var path = require('path');
+var comments = require('./comments.json');
+
+// 2. Create Server
+http.createServer(function (req, res) {
+    // 3. Parse the request containing file name
+    var pathname = url.parse(req.url).pathname;
+    console.log("Request for " + pathname + " received.");
+
+    // 4. Read the requested file content from file system
+    fs.readFile(pathname.substr(1), function (err, data) {
+        if (err) {
+            console.log(err);
+            // HTTP Status: 404 : NOT FOUND
+            // Content Type: text/html
+            res.writeHead(404, { 'Content-Type': 'text/html' });
+        } else {
+            // Page found
+            // HTTP Status: 200 : OK
+            // Content Type: text/html
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+
+            // Write the content of the file to response body
+            res.write(data.toString());
+        }
+
+        // Send the response body
+        res.end();
+    });
+}).listen(8080);
+
+console.log('Server running at http://')
